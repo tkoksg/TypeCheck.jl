@@ -24,6 +24,7 @@ end
 
 # Return the type-inferred AST for one Method (of a generic Function)
 immutable dummy_X_yyyy end
+
 function Base.code_typed(m::Method)
  linfo = m.func.code
  #(tree,ty) = Base.typeinf(linfo,m.sig,())
