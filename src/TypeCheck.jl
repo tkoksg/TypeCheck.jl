@@ -291,7 +291,7 @@ type LoopResult
   LoopResult(ms::MethodSignature,ls::Vector{Tuple{Symbol,Type}}) = new(ms,unique(ls))
 end
 
-function Base.writemime(io, ::MIME"text/plain", x::LoopResult)
+function Base.writemime(io::Base.IO, ::MIME"text/plain", x::LoopResult)
   display(x.msig)
   for (s,t) in x.lines
     println(io,"\t",string(s),"::",string(t))
@@ -303,7 +303,7 @@ type LoopResults
   methods::Vector{LoopResult}
 end
 
-function Base.writemime(io, ::MIME"text/plain", x::LoopResults)
+function Base.writemime(io::Base.IO, ::MIME"text/plain", x::LoopResults)
   for lr in x.methods
     print(io,string(x.name))
     display(lr)
@@ -331,7 +331,7 @@ function loopcontents(e::Expr)
   b = body(e)
   loops = Int[]
   nesting = 0
-  lines = {}
+  lines = []
   for i in 1:length(b)
     if typeof(b[i]) == LabelNode
       l = b[i].label
@@ -550,7 +550,7 @@ check_locals(f::Callable) = all([check_locals(e) for e in code_typed(f)])
 check_locals(e::Expr) = isempty(unused_locals(e))
 
 checkmissingexports(m::Module) = isempty(find_missing_exports(m))
-function find_missing_exports(m::Module=Base, missing::Vector{(Module,Symbol)}=(Module,Symbol)[])
+function find_missing_exports(m::Module=Base, missing::Vector{Tuple{Module,Symbol}}=Tuple{Module,Symbol}[])
   for n in names(m,true,false)
     if isdefined(m,n)
       f = getfield(m,n)
