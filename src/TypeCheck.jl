@@ -26,7 +26,7 @@ end
 function Base.code_typed(m::Method)
  linfo = m.func.code
  #(tree,ty) = Base.typeinf(linfo,m.sig,())
- (tree,ty) = Core.Inference.typeinf_unchanged(linfo,m.sig,(),optimize=false)
+ (tree,ty) = Core.Inference.typeinf(linfo,m.sig,())
  if !isa(tree,Expr)
      ccall(:jl_uncompress_ast, Any, (Any,Any), linfo, tree)
  else
