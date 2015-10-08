@@ -147,7 +147,7 @@ argumenttype(q::QuoteNode,e::Expr) = argumenttype(q.value,e)
 # as above, but for various literal values
 argumenttype(n::Number,e::Expr) = typeof(n)
 argumenttype(c::Char,e::Expr) = typeof(c)
-argumenttype(s::String,e::Expr) = typeof(s)
+argumenttype(s::AbstractString,e::Expr) = typeof(s)
 argumenttype(i,e::Expr) = typeof(i) #catch all, hopefully for more literals
 
 # Make Types Iterable
@@ -368,7 +368,7 @@ function loosetypes(lr::Vector)
         e1 = pop!(es)
         if typeof(e1) == Expr
           append!(es,e1.args)
-        elseif typeof(e1) == SymbolNode && !isleaftype(e1.typ) && typeof(e1.typ) == UnionType
+        elseif typeof(e1) == SymbolNode && !isleaftype(e1.typ) && typeof(e1.typ) == Union
           push!(lines,(e1.name,e1.typ))
         end
       end
@@ -592,7 +592,7 @@ end
 
 add_iface(t::TypeVar, f::Symbol, ifaces::InterfaceDict) = add_iface(t.ub, f, ifaces)
 add_iface(t::TypeConstructor, f::Symbol, ifaces::InterfaceDict) = add_iface(t.body, f, ifaces)
-function add_iface(t::UnionType, f::Symbol, ifaces::InterfaceDict)
+function add_iface(t::Union, f::Symbol, ifaces::InterfaceDict)
   for t in t.types
     add_iface(t, f, ifaces)
   end
