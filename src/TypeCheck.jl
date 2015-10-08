@@ -69,7 +69,7 @@ function extractcallsfromreturns(e::Expr)
 end
 
 # A type that covers both Types and TypeVars
-AType = Union(Type,TypeVar)
+AType = Union{Type,TypeVar}
 
 # Returns the type of each argument in a Method's signature
 # Takes an Expr representing a Method, returns Vector{AType}
@@ -222,10 +222,10 @@ checkmethodcalls(m::Module) = checkallmodule(m;test=checkmethodcalls)
 
 type MethodSignature
   typs::Vector{AType}
-  returntype::Union(Type,TypeVar) # v0.2 has TypeVars as returntypes; v0.3 does not
+  returntype::Union{Type,TypeVar} # v0.2 has TypeVars as returntypes; v0.3 does not
 end
 MethodSignature(e::Expr) = MethodSignature(argumenttypes(e),returntype(e))
-function Base.writemime(io, ::MIME"text/plain", x::MethodSignature)
+function Base.writemime(io::Base.IO, ::MIME"text/plain", x::MethodSignature)
   println(io,"(",join([string(t) for t in x.typs],","),")::",x.returntype)
 end
 
@@ -234,7 +234,7 @@ type FunctionSignature
   name::Symbol
 end
 
-function Base.writemime(io, ::MIME"text/plain", x::FunctionSignature)
+function Base.writemime(io::Base.IO, ::MIME"text/plain", x::FunctionSignature)
   for m in x.methods
     print(io,string(x.name))
     display(m)
@@ -287,8 +287,8 @@ end
 
 type LoopResult
   msig::MethodSignature
-  lines::Vector{(Symbol,Type)} #TODO should this be a specialized type? SymbolNode?
-  LoopResult(ms::MethodSignature,ls::Vector{(Symbol,Type)}) = new(ms,unique(ls))
+  lines::Vector{Tuple{Symbol,Type}} #TODO should this be a specialized type? SymbolNode?
+  LoopResult(ms::MethodSignature,ls::Vector{Tuple{Symbol,Type}}) = new(ms,unique(ls))
 end
 
 function Base.writemime(io, ::MIME"text/plain", x::LoopResult)
@@ -360,7 +360,7 @@ end
 # and determine their types
 # `method` is only used as part of constructing the return type
 function loosetypes(lr::Vector)
-  lines = (Symbol,Type)[]
+  lines = Tuple{Symbol,Type}[]
   for (i,e) in lr
     if typeof(e) == Expr
       es = copy(e.args)
@@ -383,7 +383,7 @@ type CallSignature
   name::Symbol
   argumenttypes::Vector{AType}
 end
-function Base.writemime(io, ::MIME"text/plain", x::CallSignature)
+function Base.writemime(io::Base.IO, ::MIME"text/plain", x::CallSignature)
   println(io,string(x.name),"(",join([string(t) for t in x.argumenttypes],","),")")
 end
 
@@ -392,7 +392,7 @@ type MethodCalls
   calls::Vector{CallSignature}
 end
 
-function Base.writemime(io, ::MIME"text/plain", x::MethodCalls)
+function Base.writemime(io::Base.IO, ::MIME"text/plain", x::MethodCalls)
   display(x.m)
   for c in x.calls
     print(io,"\t")
@@ -405,7 +405,7 @@ type FunctionCalls
   methods::Vector{MethodCalls}
 end
 
-function Base.writemime(io, ::MIME"text/plain", x::FunctionCalls)
+function Base.writemime(io::Base.IO, ::MIME"text/plain", x::FunctionCalls)
   for mc in x.methods
     print(io,string(x.name))
     display(mc)
